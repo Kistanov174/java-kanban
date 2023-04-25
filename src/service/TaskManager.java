@@ -3,8 +3,13 @@ package service;
 import model.*;
 
 import java.util.List;
+import java.util.Set;
 
 public interface TaskManager {
+    boolean checkUncrossingTasks(Task newTask);
+
+    Set<Task> getPrioritizedTasks();
+
     List<Task> getAllTasks();
 
     List<Epic> getAllEpics();
