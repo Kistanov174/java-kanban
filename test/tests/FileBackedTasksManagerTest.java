@@ -1,11 +1,13 @@
-package service;
+package tests;
 
 import exception.ManagerSaveException;
 import model.Epic;
 import model.Subtask;
 import model.Task;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import service.FileBackedTasksManager;
 
 import java.io.File;
 import java.time.Duration;
@@ -17,8 +19,9 @@ import static org.junit.jupiter.api.Assertions.*;
 public class FileBackedTasksManagerTest extends TaskManagerTest<FileBackedTasksManager> {
     File file = new File("src\\storage.csv");
 
+    @DisplayName("Чтение несуществующего файла")
     @Test
-    public void readNotExistedFile() {
+    public void shouldGetExceptionReadingFile() {
         taskManager = new FileBackedTasksManager();
         File file  = new File("src\\NotExistedFile.csv");
         ManagerSaveException ex = assertThrows(ManagerSaveException.class,
@@ -26,8 +29,9 @@ public class FileBackedTasksManagerTest extends TaskManagerTest<FileBackedTasksM
         assertEquals("Ошибка считывания в service.FileBackedTasksManager.loadFromFile()", ex.getMessage());
     }
 
+    @DisplayName("Чтение пустого файла")
     @Test
-    public void readEmptyFile() {
+    public void shouldGetEmptyTaskManager() {
         taskManager = new FileBackedTasksManager();
         assertNotNull(FileBackedTasksManager.loadFromFile(file), "Менеджер не создается");
         assertTrue(taskManager.getAllTasks().isEmpty(), "Список задач не пуст");
@@ -36,8 +40,9 @@ public class FileBackedTasksManagerTest extends TaskManagerTest<FileBackedTasksM
         assertTrue(taskManager.getHistory().isEmpty(), "История просмотра не пуста");
     }
 
+    @DisplayName("Чтение файла с пустой историей просмотра")
     @Test
-    public void readFileWithEmptyBrowsingHistory() {
+    public void shouldGetTaskManagerWithEmptyBrowsingHistory() {
         taskManager = new FileBackedTasksManager();
         Task task = new Task("Test addNewTask", "Test addNewTask description",
                 LocalDateTime.of(2023,4,7,12,35),
@@ -49,47 +54,32 @@ public class FileBackedTasksManagerTest extends TaskManagerTest<FileBackedTasksM
         assertEquals("[]", taskManager.getHistory().toString());
     }
 
+    @DisplayName("Запись и чтение эпика без подзадач")
     @Test
-    public void writeAndReadEmptyEpic() {
+    public void shouldGetFileAndTaskManagerWithEmptyEpic() {
         Epic epic = new Epic("The single epic", "This epic has zero subtask",null, null);
         taskManager = new FileBackedTasksManager();
         taskManager.addEpic(epic);
         FileBackedTasksManager newTaskManager = FileBackedTasksManager.loadFromFile(file);
         Epic restoreEpic = newTaskManager.getEpicById(epic.getId());
-        assertAll("Сравнение всех полей пустого эпика",
-                () -> assertEquals(epic.getId(), restoreEpic.getId()),
-                () -> assertEquals(epic.getType(), restoreEpic.getType()),
-                () -> assertEquals(epic.getName(), restoreEpic.getName()),
-                () -> assertEquals(epic.getStatus(), restoreEpic.getStatus()),
-                () -> assertEquals(epic.getDescription(), restoreEpic.getDescription()),
-                () -> assertEquals(epic.getStartTime(), restoreEpic.getStartTime()),
-                () -> assertEquals(epic.getDuration(), restoreEpic.getDuration()),
-                () -> assertEquals(epic.getEndTime(), restoreEpic.getEndTime())
-                );
+        assertEquals(restoreEpic, epic, "Эпики не эдентичны");
     }
 
+    @DisplayName("Запись и чтение задачи")
     @Test
-    public void writeAndReadTask() {
+    public void shouldGetFileAndTaskManagerWithTask() {
         Task task = new Task("Test addNewTask", "Test addNewTask description",
         LocalDateTime.of(2023,4,7,12,35), Duration.ofMinutes(120));
         taskManager = new FileBackedTasksManager();
         taskManager.addTask(task);
         FileBackedTasksManager newTaskManager = FileBackedTasksManager.loadFromFile(file);
         Task restoreTask = newTaskManager.getTaskById(task.getId());
-        assertAll("Сравнение всех полей задачи",
-                () -> assertEquals(task.getId(), restoreTask.getId()),
-                () -> assertEquals(task.getType(), restoreTask.getType()),
-                () -> assertEquals(task.getName(), restoreTask.getName()),
-                () -> assertEquals(task.getStatus(), restoreTask.getStatus()),
-                () -> assertEquals(task.getDescription(), restoreTask.getDescription()),
-                () -> assertEquals(task.getStartTime(), restoreTask.getStartTime()),
-                () -> assertEquals(task.getDuration(), restoreTask.getDuration()),
-                () -> assertEquals(task.getEndTime(), restoreTask.getEndTime())
-        );
+        assertEquals(restoreTask, task, "Задачи не эдентичны");
     }
 
+    @DisplayName("Запись и чтение эпика с подзадачами")
     @Test
-    public void writeAndReadSubtaskAndEpic() {
+    public void shouldGetFileAndTaskManagerWithNotEmptyEpic() {
         taskManager = new FileBackedTasksManager();
         Epic epic = new Epic("The single epic", "This epic has zero subtask",null, null);
         taskManager.addEpic(epic);
@@ -98,33 +88,15 @@ public class FileBackedTasksManagerTest extends TaskManagerTest<FileBackedTasksM
         taskManager.addSubtask(subtask);
         FileBackedTasksManager newTaskManager = FileBackedTasksManager.loadFromFile(file);
         Subtask restoreSubtask = newTaskManager.getSubTaskById(subtask.getId());
-        assertAll("Сравнение всех полей подзадачи",
-                () -> assertEquals(subtask.getId(), restoreSubtask.getId()),
-                () -> assertEquals(subtask.getType(), restoreSubtask.getType()),
-                () -> assertEquals(subtask.getName(), restoreSubtask.getName()),
-                () -> assertEquals(subtask.getStatus(), restoreSubtask.getStatus()),
-                () -> assertEquals(subtask.getDescription(), restoreSubtask.getDescription()),
-                () -> assertEquals(subtask.getStartTime(), restoreSubtask.getStartTime()),
-                () -> assertEquals(subtask.getDuration(), restoreSubtask.getDuration()),
-                () -> assertEquals(subtask.getEndTime(), restoreSubtask.getEndTime()),
-                () -> assertEquals(subtask.getEpicId(), restoreSubtask.getEpicId())
-        );
+        assertEquals(restoreSubtask, subtask, "Подзадачи не эдентичны");
 
         Epic restoreEpic = newTaskManager.getEpicById(epic.getId());
-        assertAll("Сравнение всех полей пустого эпика",
-                () -> assertEquals(epic.getId(), restoreEpic.getId()),
-                () -> assertEquals(epic.getType(), restoreEpic.getType()),
-                () -> assertEquals(epic.getName(), restoreEpic.getName()),
-                () -> assertEquals(epic.getStatus(), restoreEpic.getStatus()),
-                () -> assertEquals(epic.getDescription(), restoreEpic.getDescription()),
-                () -> assertEquals(epic.getStartTime(), restoreEpic.getStartTime()),
-                () -> assertEquals(epic.getDuration(), restoreEpic.getDuration()),
-                () -> assertEquals(epic.getEndTime(), restoreEpic.getEndTime())
-        );
+        assertEquals(restoreEpic, epic, "Эпики не эдентичны");
     }
 
+    @DisplayName("Запись и чтение истории просмотра")
     @Test
-    public void writeAndReadBrowsingHistory() {
+    public void shouldGetFileAndTaskManagerWithNotEmptyBrowsingHistory() {
         taskManager = new FileBackedTasksManager();
         Epic epic = new Epic("The single epic", "This epic has zero subtask",null, null);
         taskManager.addEpic(epic);

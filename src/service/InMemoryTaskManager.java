@@ -24,7 +24,7 @@ public class InMemoryTaskManager implements TaskManager {
         prioritizedTasks = new TreeSet<>();
     }
 
-    protected HistoryManager getHistoryManager() {
+    public HistoryManager getHistoryManager() {
         return historyManager;
     }
 
@@ -36,12 +36,11 @@ public class InMemoryTaskManager implements TaskManager {
         for (Task task : prioritizedTasks) {
             LocalDateTime startTask = task.getStartTime();
             LocalDateTime endTask = task.getEndTime();
-            boolean condition1 = startNewTask.isAfter(startTask)
-                    && endNewTask.isBefore(endTask);
-            boolean condition2 = startNewTask.isAfter(startTask) && startNewTask.isBefore(endTask);
-            boolean condition3 = endNewTask.isAfter(startTask) && endNewTask.isBefore(endTask);
-            boolean condition4 = startNewTask.isBefore(startTask) && endNewTask.isAfter(endTask);
-            if (condition1 || condition2 || condition3 || condition4) {
+            boolean insideAnotherTaskPeriod = startNewTask.isAfter(startTask) && startNewTask.isBefore(endTask);
+            boolean startInsideAnotherTask = startNewTask.isAfter(startTask) && endNewTask.isBefore(endTask);
+            boolean endInsideAnotherTask = endNewTask.isAfter(startTask) && endNewTask.isBefore(endTask);
+            boolean anotherTaskInside = startNewTask.isBefore(startTask) && endNewTask.isAfter(endTask);
+            if (insideAnotherTaskPeriod || startInsideAnotherTask || endInsideAnotherTask || anotherTaskInside) {
                 return false;
             }
         }

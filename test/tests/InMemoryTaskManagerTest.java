@@ -1,9 +1,10 @@
-package service;
+package tests;
 
 import model.Epic;
 import model.Subtask;
 import model.Task;
 import org.junit.jupiter.api.BeforeEach;
+import service.InMemoryTaskManager;
 
 import java.time.Duration;
 import java.time.LocalDateTime;
