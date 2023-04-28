@@ -8,7 +8,6 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import service.HistoryManager;
 import service.TaskManager;
-
 import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.List;
@@ -23,7 +22,6 @@ public abstract class TaskManagerTest<T extends TaskManager> {
     protected Task task1;
     protected Task task2;
     protected Task task3;
-
     protected Epic epic1;
     protected Subtask subtask1;
     protected Subtask subtask2;
@@ -32,7 +30,7 @@ public abstract class TaskManagerTest<T extends TaskManager> {
 
     @DisplayName("Проверка методов менеджера по работе с задачами")
     @Test
-    public void shouldMakeNewTask() {
+    void shouldMakeNewTask() {
         final int taskId = task1.getId();
         final Task savedTask = taskManager.getTaskById(taskId);
         assertNotNull(savedTask, "Задача не найдена.");
@@ -45,7 +43,7 @@ public abstract class TaskManagerTest<T extends TaskManager> {
 
     @DisplayName("Проверка исключения пересекающихся задач")
     @Test
-    public void shouldGetExceptionAboutWrongParameters() {
+    void shouldGetExceptionAboutWrongParameters() {
         LocalDateTime newDateTime = LocalDateTime.of(2023,4,7,13,0);
 
         Subtask newSubtask1 = new Subtask(subtask1.getId(), subtask1.getType(), subtask1.getName(), subtask1.getStatus(),
@@ -71,7 +69,7 @@ public abstract class TaskManagerTest<T extends TaskManager> {
 
     @DisplayName("Проверка создания приоритетного списка")
     @Test
-    public void shouldGetPrioritizedListOfTasks() {
+    void shouldGetPrioritizedListOfTasks() {
         final Set<Task> prioritizedTasks = taskManager.getPrioritizedTasks();
         assertNotNull(prioritizedTasks, "Приоритетный список не возвращается");
         assertEquals(5, prioritizedTasks.size());
@@ -87,7 +85,7 @@ public abstract class TaskManagerTest<T extends TaskManager> {
 
     @DisplayName("Проверка работы менеджера с пустым списком задач")
     @Test
-    public void shouldGetExceptionToGetAndToDeleteNotExistTask() {
+    void shouldGetExceptionToGetAndToDeleteNotExistTask() {
         Integer id = task1.getId();
         taskManager.deleteAllTasks();
         List<Task> tasks = taskManager.getAllTasks();
@@ -100,7 +98,7 @@ public abstract class TaskManagerTest<T extends TaskManager> {
 
     @DisplayName("Проверка методов менеджера по работе с задачами")
     @Test
-    public void shouldMakeNewSubtask() {
+    void shouldMakeNewSubtask() {
         final int subtaskId = subtask1.getId();
         final Subtask savedSubtask = taskManager.getSubTaskById(subtaskId);
         assertNotNull(savedSubtask, "Подзадача не найдена.");
@@ -115,7 +113,7 @@ public abstract class TaskManagerTest<T extends TaskManager> {
 
     @DisplayName("Проверка метода удаления задачи")
     @Test
-    public void shouldGetExceptionToGetTaskAfterDelete() {
+    void shouldGetExceptionToGetTaskAfterDelete() {
         final int taskId = task1.getId();
         taskManager.deleteTaskById(taskId);
         NoSuchElementException ex = assertThrows(NoSuchElementException.class, () -> taskManager.getTaskById(taskId));
@@ -124,7 +122,7 @@ public abstract class TaskManagerTest<T extends TaskManager> {
 
     @DisplayName("Проверка метода удаления всех задач")
     @Test
-    public void shouldGetEmptyListOfTasksAfterAllDelete() {
+    void shouldGetEmptyListOfTasksAfterAllDelete() {
         final int taskId = task1.getId();
         taskManager.deleteAllTasks();
         NoSuchElementException ex = assertThrows(NoSuchElementException.class, () -> taskManager.getTaskById(taskId));
@@ -135,7 +133,7 @@ public abstract class TaskManagerTest<T extends TaskManager> {
 
     @DisplayName("Проверка метода удаления подзадачи")
     @Test
-    public void shouldGetExceptionToGetSubtaskAfterDelete() {
+    void shouldGetExceptionToGetSubtaskAfterDelete() {
         final int subtaskId = subtask1.getId();
         taskManager.deleteSubtaskById(subtaskId);
         NoSuchElementException ex = assertThrows(NoSuchElementException.class,
@@ -145,7 +143,7 @@ public abstract class TaskManagerTest<T extends TaskManager> {
 
     @DisplayName("Проверка метода удаления всех подзадач")
     @Test
-    public void shouldGetEmptyListOfSubtasksAfterAllDelete() {
+    void shouldGetEmptyListOfSubtasksAfterAllDelete() {
         final int subtaskId = subtask2.getId();
         taskManager.deleteAllSubTasks();
         NoSuchElementException ex = assertThrows(NoSuchElementException.class,
@@ -157,7 +155,7 @@ public abstract class TaskManagerTest<T extends TaskManager> {
 
     @DisplayName("Проверка метода удаления эпика")
     @Test
-    public void shouldGetExceptionToGetEpicAfterDelete() {
+    void shouldGetExceptionToGetEpicAfterDelete() {
         final int id = epic1.getId();
         taskManager.deleteEpicById(id);
         NoSuchElementException ex = assertThrows(NoSuchElementException.class,
@@ -167,7 +165,7 @@ public abstract class TaskManagerTest<T extends TaskManager> {
 
     @DisplayName("Проверка метода удаления всех эпиков")
     @Test
-    public void shouldGetEmptyListOfEpicsAfterAllDelete() {
+    void shouldGetEmptyListOfEpicsAfterAllDelete() {
         final int id = epic1.getId();
         taskManager.deleteAllEpics();
         NoSuchElementException ex = assertThrows(NoSuchElementException.class,
@@ -179,7 +177,7 @@ public abstract class TaskManagerTest<T extends TaskManager> {
 
     @DisplayName("Проверка метода обновления задачи")
     @Test
-    public void shouldGetUpdatedTask() {
+    void shouldGetUpdatedTask() {
         task1.setStatus(Status.DONE);
         taskManager.updateTask(task1);
         assertEquals(Status.DONE, task1.getStatus(), "Статусы не совпадают");
@@ -187,7 +185,7 @@ public abstract class TaskManagerTest<T extends TaskManager> {
 
     @DisplayName("Проверка методов менеджера по работе с эпиками")
     @Test
-    public void shouldMakeNewEpic() {
+    void shouldMakeNewEpic() {
         final int epicId = epic1.getId();
         final Task savedEpic = taskManager.getEpicById(epicId);
         final LocalDateTime startTimeEpic1 = epic1.getStartTime();
@@ -207,7 +205,7 @@ public abstract class TaskManagerTest<T extends TaskManager> {
 
     @DisplayName("Проверка работы менеджера с пустым списком эпиков")
     @Test
-    public void shouldGetExceptionToGetAndToDeleteNotExistEpic() {
+    void shouldGetExceptionToGetAndToDeleteNotExistEpic() {
         Integer id = epic1.getId();
         List<Subtask> subtasksOfEpic = taskManager.getSubtasksOfEpic(id);
         taskManager.deleteAllEpics();
@@ -225,7 +223,7 @@ public abstract class TaskManagerTest<T extends TaskManager> {
 
     @DisplayName("Проверка работы менеджера с пустым списком подзадач")
     @Test
-    public void shouldGetExceptionToGetAndToDeleteNotExistSubtask() {
+    void shouldGetExceptionToGetAndToDeleteNotExistSubtask() {
         Integer id = subtask1.getId();
         taskManager.deleteAllSubTasks();
         List<Subtask> subtasks = taskManager.getAllSubtasks();
@@ -238,7 +236,7 @@ public abstract class TaskManagerTest<T extends TaskManager> {
 
     @DisplayName("Проверка назначения статуса NEW для пустого эпика")
     @Test
-    public void shouldGetStatusNewForEmptySubtaskList() {
+    void shouldGetStatusNewForEmptySubtaskList() {
         Epic epic = new Epic("The single epic", "This epic has zero subtask",
                 null, null);
         taskManager.addEpic(epic);
@@ -248,7 +246,7 @@ public abstract class TaskManagerTest<T extends TaskManager> {
 
     @DisplayName("Проверка статуса NEW для эпика если все подзадачи NEW")
     @Test
-    public void shouldGetStatusNewIfAllSubtasksHaveStatusNew() {
+    void shouldGetStatusNewIfAllSubtasksHaveStatusNew() {
         Epic epic = new Epic("The triple epic", "This epic has three subtasks",
                 null, null);
         taskManager.addEpic(epic);
@@ -268,7 +266,7 @@ public abstract class TaskManagerTest<T extends TaskManager> {
 
     @DisplayName("Проверка назначения статуса DONE для эпика")
     @Test
-    public void shouldGetStatusDoneIfAllSubtasksHaveStatusDone() {
+    void shouldGetStatusDoneIfAllSubtasksHaveStatusDone() {
         Epic epic = new Epic("The double epic", "This epic has two subtasks",
                 null, null);
         taskManager.addEpic(epic);
@@ -289,7 +287,7 @@ public abstract class TaskManagerTest<T extends TaskManager> {
 
     @DisplayName("Проверка статуса IN_PROGRESS для эпика при разных статусах подзадач")
     @Test
-    public void shouldGetStatusInProgressIfSubtasksHaveStatusNewAndDone() {
+    void shouldGetStatusInProgressIfSubtasksHaveStatusNewAndDone() {
         Epic epic = new Epic("The double epic", "This epic has two subtasks",
                 null, null);
         taskManager.addEpic(epic);
@@ -311,7 +309,7 @@ public abstract class TaskManagerTest<T extends TaskManager> {
 
     @DisplayName("Проверка статуса IN_PROGRESS для эпика если все подзадачи IN_PROGRESS")
     @Test
-    public void shouldGetStatusInProgressIfSubtasksHaveStatusInProgress() {
+    void shouldGetStatusInProgressIfSubtasksHaveStatusInProgress() {
         Epic epic = new Epic("The double epic", "This epic has two subtasks",
                 null, null);
         taskManager.addEpic(epic);
@@ -332,7 +330,7 @@ public abstract class TaskManagerTest<T extends TaskManager> {
 
     @DisplayName("Проверка методов по работе с историей просмотра")
     @Test
-    public void shouldGetCorrectBrowsingHistory() {
+    void shouldGetCorrectBrowsingHistory() {
 
         List<Task> browsingHistory = taskManager.getHistory();
         assertNotNull(browsingHistory, "История не возвращается");
@@ -370,5 +368,36 @@ public abstract class TaskManagerTest<T extends TaskManager> {
         historyManager.remove(subtask2.getId());
         browsingHistory = taskManager.getHistory();
         assertEquals(subtask1, browsingHistory.get(browsingHistory.size() - 1), "Конец истории не удаляется");
+    }
+
+    protected void initializeTasks() {
+        task1 = new Task("Test addNewTask", "Test addNewTask description",
+                LocalDateTime.of(2023,4,7,12,35),
+                Duration.ofMinutes(120));
+        taskManager.addTask(task1);
+
+        task2 = new Task("Test addNewTask2", "Test addNewTask2 description",
+                LocalDateTime.of(2023,1,23,19,10),
+                Duration.ofMinutes(400));
+        taskManager.addTask(task2);
+
+        task3 = new Task("Test addNewTask3", "Test addNewTask3 description",
+                LocalDateTime.of(2023,4,7,13,35),
+                Duration.ofMinutes(120));
+
+        epic1 = new Epic("The triple epic", "This epic has three subtasks",
+                null, null);
+        taskManager.addEpic(epic1);
+        subtask1 = new Subtask("The first", "Number one", epic1.getId(),
+                LocalDateTime.of(2023,1,4,12,45), Duration.ofMinutes(45));
+        taskManager.addSubtask(subtask1);
+        subtask2 = new Subtask("The second", "Number two", epic1.getId(),
+                LocalDateTime.of(2023,2,15,21,0), Duration.ofMinutes(150));
+        taskManager.addSubtask(subtask2);
+        subtask3 = new Subtask("The third", "Number three", epic1.getId(),
+                LocalDateTime.of(2023,3,7,15,35), Duration.ofMinutes(115));
+        taskManager.addSubtask(subtask3);
+        subtask4 = new Subtask("The fourth", "Number fourth", epic1.getId(),
+                LocalDateTime.of(2023,2,15,22,0), Duration.ofMinutes(150));
     }
 }
