@@ -1,7 +1,7 @@
 package service;
 
 import model.*;
-
+import java.io.IOException;
 import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.*;
@@ -11,7 +11,6 @@ public class InMemoryTaskManager implements TaskManager {
     protected final Map<Integer, Task> tasks;
     protected final Map<Integer, Epic> epics;
     protected final Map<Integer, Subtask> subtasks;
-
     protected final HistoryManager historyManager;
     protected final Set<Task> prioritizedTasks;
 
@@ -24,6 +23,7 @@ public class InMemoryTaskManager implements TaskManager {
         prioritizedTasks = new TreeSet<>();
     }
 
+    @Override
     public HistoryManager getHistoryManager() {
         return historyManager;
     }
@@ -118,7 +118,7 @@ public class InMemoryTaskManager implements TaskManager {
     }
 
     @Override
-    public void deleteAllEpics() {
+    public void deleteAllEpics() throws IOException, InterruptedException {
         deleteFromBrowsingHistory(subtasks);
         deleteFromBrowsingHistory(epics);
         deleteAllSubTasks();
@@ -126,7 +126,7 @@ public class InMemoryTaskManager implements TaskManager {
     }
 
     @Override
-    public void deleteAllSubTasks() {
+    public void deleteAllSubTasks() throws IOException, InterruptedException {
         deleteFromBrowsingHistory(subtasks);
         prioritizedTasks.removeAll(subtasks.values());
         subtasks.clear();
@@ -137,7 +137,7 @@ public class InMemoryTaskManager implements TaskManager {
     }
 
     @Override
-    public Task getTaskById(Integer id) {
+    public Task getTaskById(Integer id) throws IOException, InterruptedException {
         if (tasks.containsKey(id)) {
             historyManager.add(tasks.get(id));
             return tasks.get(id);
@@ -147,7 +147,7 @@ public class InMemoryTaskManager implements TaskManager {
     }
 
     @Override
-    public Epic getEpicById(Integer id) {
+    public Epic getEpicById(Integer id) throws IOException, InterruptedException {
         if (epics.containsKey(id)) {
             historyManager.add(epics.get(id));
             return epics.get(id);
@@ -157,7 +157,7 @@ public class InMemoryTaskManager implements TaskManager {
     }
 
     @Override
-    public Subtask getSubTaskById(Integer id) {
+    public Subtask getSubTaskById(Integer id) throws IOException, InterruptedException {
         if (subtasks.containsKey(id)) {
             historyManager.add(subtasks.get(id));
             return subtasks.get(id);
@@ -167,7 +167,7 @@ public class InMemoryTaskManager implements TaskManager {
     }
 
     @Override
-    public Integer addTask(Task task) {
+    public Integer addTask(Task task) throws IOException, InterruptedException {
         if (checkUncrossingTasks(task)) {
             Integer id = generateId();
             task.setId(id);
@@ -181,7 +181,7 @@ public class InMemoryTaskManager implements TaskManager {
     }
 
     @Override
-    public Integer addEpic(Epic epic) {
+    public Integer addEpic(Epic epic) throws IOException, InterruptedException {
         Integer id = generateId();
         epic.setId(id);
         updateEpic(epic);
@@ -190,11 +190,10 @@ public class InMemoryTaskManager implements TaskManager {
     }
 
     @Override
-    public Integer addSubtask(Subtask subtask) {
+    public Integer addSubtask(Subtask subtask) throws IOException, InterruptedException {
         if (epics.containsKey(subtask.getEpicId()) && checkUncrossingTasks(subtask)) {
             Integer id = generateId();
             subtask.setId(id);
-            //subtask.setEndTime();
             subtasks.put(id, subtask);
             prioritizedTasks.add(subtask);
             epics.get(subtask.getEpicId()).addSubtaskId(subtask.getId());
@@ -206,7 +205,7 @@ public class InMemoryTaskManager implements TaskManager {
     }
 
     @Override
-    public void deleteTaskById(Integer id) {
+    public void deleteTaskById(Integer id) throws IOException, InterruptedException {
         if (tasks.containsKey(id)) {
             prioritizedTasks.remove(tasks.get(id));
             tasks.remove(id);
@@ -217,7 +216,7 @@ public class InMemoryTaskManager implements TaskManager {
     }
 
     @Override
-    public void deleteEpicById(Integer id) {
+    public void deleteEpicById(Integer id) throws IOException, InterruptedException {
         if (epics.containsKey(id)) {
             int amountSubtaskInEpic = epics.get(id).getSubtasksId().size();
             for (int i = amountSubtaskInEpic - 1; i >= 0; i--) {
@@ -231,7 +230,7 @@ public class InMemoryTaskManager implements TaskManager {
     }
 
     @Override
-    public void deleteSubtaskById(Integer id) {
+    public void deleteSubtaskById(Integer id) throws IOException, InterruptedException {
         if (subtasks.containsKey(id)) {
             Integer epicId = subtasks.get(id).getEpicId();
             epics.get(epicId).deleteSubtaskId(id);
@@ -245,7 +244,7 @@ public class InMemoryTaskManager implements TaskManager {
     }
 
     @Override
-    public void updateTask(Task task) {
+    public void updateTask(Task task) throws IOException, InterruptedException {
         task.setEndTime();
         if (tasks.containsKey(task.getId()) && checkUncrossingTasks(task)) {
             prioritizedTasks.remove(getTaskById(task.getId()));
@@ -257,7 +256,7 @@ public class InMemoryTaskManager implements TaskManager {
     }
 
     @Override
-    public void updateSubtask(Subtask subtask) {
+    public void updateSubtask(Subtask subtask) throws IOException, InterruptedException {
         subtask.setEndTime();
         if (subtasks.containsKey(subtask.getId()) && checkUncrossingTasks(subtask)) {
             prioritizedTasks.remove(getSubTaskById(subtask.getId()));
@@ -270,10 +269,11 @@ public class InMemoryTaskManager implements TaskManager {
     }
 
     @Override
-    public void updateEpic(Epic epic) {
+    public void updateEpic(Epic epic) throws IOException, InterruptedException {
         int numberOfDoneSubtask = 0;
         int numberOfSubtaskInProgress = 0;
         if (epics.containsKey(epic.getId())) {
+            epics.put(epic.getId(), epic);
             List<Subtask> subtaskOfEpic = getSubtasksOfEpic(epic.getId());
             for (Subtask subtask : subtaskOfEpic) {
                 if (subtask.getStatus().equals(Status.DONE)) {

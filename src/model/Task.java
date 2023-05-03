@@ -6,7 +6,7 @@ import java.util.Objects;
 
 public class Task implements Comparable<Task> {
     protected Integer id;
-    protected String Name;
+    protected String name;
     protected String description;
     protected Status status;
     protected Type type;
@@ -42,7 +42,7 @@ public class Task implements Comparable<Task> {
     }
 
     public Task(String name, String description, LocalDateTime startTime, Duration duration) {
-        this.Name = name;
+        this.name = name;
         this.description = description;
         status = Status.NEW;
         type = Type.TASK;
@@ -57,7 +57,7 @@ public class Task implements Comparable<Task> {
                 LocalDateTime startTime, Duration duration, LocalDateTime endTime) {
         this.id = id;
         this.type = type;
-        this.Name = name;
+        this.name = name;
         this.status = status;
         this.description = description;
         this.startTime = startTime;
@@ -78,11 +78,11 @@ public class Task implements Comparable<Task> {
     }
 
     public String getName() {
-        return Name;
+        return name;
     }
 
     public void setName(String name) {
-        Name = name;
+        this.name = name;
     }
 
     public String getDescription() {
@@ -103,7 +103,7 @@ public class Task implements Comparable<Task> {
 
     @Override
     public String toString() {
-        return this.id + "," + this.type + "," + this.Name + "," + this.getStatus() + "," + this.description + ","
+        return this.id + "," + this.type + "," + this.name + "," + this.getStatus() + "," + this.description + ","
                 + this.startTime + "," + this.duration + "," + this.endTime;
     }
 

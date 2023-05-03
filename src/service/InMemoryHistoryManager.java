@@ -2,10 +2,7 @@ package service;
 
 import model.Task;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.List;
+import java.util.*;
 
 public class InMemoryHistoryManager implements  HistoryManager {
     private Node<Task> head;
@@ -76,7 +73,11 @@ public class InMemoryHistoryManager implements  HistoryManager {
             tasks.add(node.data);
             node = node.nextNode;
         }
-        return tasks;
+        if (!tasks.isEmpty()) {
+            return tasks;
+        } else {
+            return Collections.emptyList();
+        }
     }
 
     @Override

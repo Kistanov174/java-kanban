@@ -1,9 +1,4 @@
 id,type,name,status,description,startTime,duration,endTime,epic
-1,TASK,Test addNewTask,NEW,Test addNewTask description,2023-04-07T12:35,PT2H,2023-04-07T14:35
-2,TASK,Test addNewTask2,NEW,Test addNewTask2 description,2023-01-23T19:10,PT6H40M,2023-01-24T01:50
-3,EPIC,The triple epic,NEW,This epic has three subtasks,2023-01-04T12:45,PT5H10M,2023-03-07T17:30
-4,SUBTASK,The first,NEW,Number one,2023-01-04T12:45,PT45M,2023-01-04T13:30,3
-5,SUBTASK,The second,NEW,Number two,2023-02-15T21:00,PT2H30M,2023-02-15T23:30,3
-6,SUBTASK,The third,NEW,Number three,2023-03-07T15:35,PT1H55M,2023-03-07T17:30,3
+1,TASK,Test addNewTask,NEW,Test addNewTask description,2024-04-07T12:35,PT2H,2024-04-07T14:35
 
- 
+1

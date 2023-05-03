@@ -1,10 +1,9 @@
-import model.*;
-import service.*;
 
-import java.time.Duration;
-import java.time.LocalDateTime;
+import server.HttpTaskServer;
+import java.io.IOException;
 
 public class Main {
-    public static void main(String[] args) {
+    public static void main(String[] args) throws IOException, InterruptedException {
+        new HttpTaskServer();
     }
 }
