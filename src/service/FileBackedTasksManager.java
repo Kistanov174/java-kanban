@@ -154,7 +154,7 @@ public class FileBackedTasksManager extends InMemoryTaskManager {
         return super.getHistory();
     }
 
-    private void save() {
+    protected void save() {
         try (FileWriter fileWriter = new FileWriter(FILE_NAME, StandardCharsets.UTF_8)) {
             fileWriter.write("id,type,name,status,description,startTime,duration,endTime,epic" + "\n");
             for (Task task : getAllTasks()) {

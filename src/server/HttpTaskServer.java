@@ -15,11 +15,13 @@ import java.net.InetSocketAddress;
 import java.net.URI;
 
 public class HttpTaskServer {
-    public static int PORT = 9180;
+    public static final int PORT = 9180;
     private final Gson gson;
     public TaskManager taskManager;
     private final HttpServer server;
     public KVServer kvServer;
+    private static final URI URI_REGISTER = URI.create("http://localhost:8078/register");
+    private static final int LENGTH_ROOT_PATH = 2;
 
 
     public HttpTaskServer() throws IOException, InterruptedException {
@@ -28,8 +30,7 @@ public class HttpTaskServer {
         kvServer = new KVServer();
         kvServer.start();
         gson = Managers.getGson();
-        URI uri = URI.create("http://localhost:8078/register");
-        taskManager = Managers.getDefault(uri);
+        taskManager = Managers.getDefault(URI_REGISTER);
         server.start();
         System.out.println("Запускается сервер");
     }
@@ -50,17 +51,20 @@ public class HttpTaskServer {
 
         try (InputStream os = httpExchange.getRequestBody()) {
             body = new String(os.readAllBytes());
+        } catch (IOException e) {
+            e.printStackTrace();
+            body = "";
         }
 
         try {
-            if (splitPath.length == 2 && method.equals("GET")) {
+            if (splitPath.length == LENGTH_ROOT_PATH && method.equals("GET")) {
                 response = gson.toJson(taskManager.getPrioritizedTasks());
                 httpExchange.sendResponseHeaders(200, 0);
                 try (OutputStream os = httpExchange.getResponseBody()) {
                     os.write(response.getBytes());
                 }
             }
-            if (splitPath.length > 2) {
+            if (splitPath.length > LENGTH_ROOT_PATH) {
                 switch(splitPath[2]) {
                     case "task":
                         response = getHandleTask(method, paramPath, body);
