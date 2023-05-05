@@ -12,7 +12,7 @@ import java.net.URI;
 public class HttpTaskManager extends FileBackedTasksManager {
     private final KVTaskClient client;
     public HistoryManager historyManager;
-    public Gson gson = new GsonBuilder().serializeNulls().create();
+    private final Gson gson = new GsonBuilder().serializeNulls().create();
 
     public HttpTaskManager(URI uri) {
         historyManager = Managers.getDefaultHistory();

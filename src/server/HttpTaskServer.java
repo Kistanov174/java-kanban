@@ -15,11 +15,11 @@ import java.net.InetSocketAddress;
 import java.net.URI;
 
 public class HttpTaskServer {
-    public static final int PORT = 9180;
+    private static final int PORT = 9180;
     private final Gson gson;
     public TaskManager taskManager;
     private final HttpServer server;
-    public KVServer kvServer;
+    private final KVServer kvServer;
     private static final URI URI_REGISTER = URI.create("http://localhost:8078/register");
     private static final int LENGTH_ROOT_PATH = 2;
 
