@@ -3,6 +3,7 @@ package server;
 import com.google.gson.Gson;
 import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpServer;
+import exception.ManagerSaveException;
 import model.Epic;
 import model.Subtask;
 import model.Task;
@@ -22,11 +23,19 @@ public class HttpTaskServer {
     private final KVServer kvServer;
     private static final URI URI_REGISTER = URI.create("http://localhost:8078/register");
     private static final int LENGTH_ROOT_PATH = 2;
+    private static final String TASK_ROOT = "task";
+    private static final String EPIC_ROOT = "epic";
+    private static final String SUBTASK_ROOT = "subtask";
+    private static final String HISTORY_ROOT = "history";
+    private static final String DELETE_METHOD = "DELETE";
+    private static final String POST_METHOD = "POST";
+    private static final String GET_METHOD = "GET";
+    private static final int WRONG_ID = -1;
 
 
     public HttpTaskServer() throws IOException, InterruptedException {
         server = HttpServer.create(new InetSocketAddress(PORT), 0);
-        server.createContext("/tasks/", this::handleTasks);
+        server.createContext("/tasks/", this::getHandle);
         kvServer = new KVServer();
         kvServer.start();
         gson = Managers.getGson();
@@ -40,8 +49,7 @@ public class HttpTaskServer {
         server.stop(0);
     }
 
-    private void handleTasks(HttpExchange httpExchange) throws IOException {
-        System.out.println("Обрабатывается запрос");
+    private void getHandle(HttpExchange httpExchange) throws IOException {
         String path = httpExchange.getRequestURI().getPath();
         String[] splitPath = path.split("/");
         String paramPath = httpExchange.getRequestURI().getRawQuery();
@@ -52,69 +60,59 @@ public class HttpTaskServer {
         try (InputStream os = httpExchange.getRequestBody()) {
             body = new String(os.readAllBytes());
         } catch (IOException e) {
-            e.printStackTrace();
-            body = "";
+            throw new ManagerSaveException("Ошибка считывания запроса в " + HttpTaskServer.class + ".getHandle");
         }
 
-        try {
-            if (splitPath.length == LENGTH_ROOT_PATH && method.equals("GET")) {
+        try (OutputStream os = httpExchange.getResponseBody()) {
+            if (splitPath.length == LENGTH_ROOT_PATH && method.equals(GET_METHOD)) {
                 response = gson.toJson(taskManager.getPrioritizedTasks());
                 httpExchange.sendResponseHeaders(200, 0);
-                try (OutputStream os = httpExchange.getResponseBody()) {
-                    os.write(response.getBytes());
-                }
+                os.write(response.getBytes());
             }
             if (splitPath.length > LENGTH_ROOT_PATH) {
-                switch(splitPath[2]) {
-                    case "task":
+                switch(splitPath[LENGTH_ROOT_PATH]) {
+                    case TASK_ROOT:
                         response = getHandleTask(method, paramPath, body);
                         httpExchange.sendResponseHeaders(200, 0);
                         if (!response.isEmpty()) {
-                            try (OutputStream os = httpExchange.getResponseBody()) {
-                                os.write(response.getBytes());
-                            }
+                            os.write(response.getBytes());
                         }
                         break;
-                    case "epic":
+                    case EPIC_ROOT:
                         response = getHandleEpic(method, paramPath, body);
                         httpExchange.sendResponseHeaders(200, 0);
                         if (!response.isEmpty()) {
-                            try (OutputStream os = httpExchange.getResponseBody()) {
-                                os.write(response.getBytes());
-                            }
+                            os.write(response.getBytes());
                         }
                         break;
-                    case "subtask":
+                    case SUBTASK_ROOT:
                         response = getHandleSubtask(method, paramPath, body);
                         httpExchange.sendResponseHeaders(200, 0);
                         if (!response.isEmpty()) {
-                            try (OutputStream os = httpExchange.getResponseBody()) {
-                                os.write(response.getBytes());
-                            }
+                            os.write(response.getBytes());
                         }
                         break;
-                    case "history":
+                    case HISTORY_ROOT:
                         response = gson.toJson(taskManager.getHistory());
                         httpExchange.sendResponseHeaders(200, 0);
                         if (!response.isEmpty()) {
-                            try (OutputStream os = httpExchange.getResponseBody()) {
-                                os.write(response.getBytes());
-                            }
+                            os.write(response.getBytes());
                         }
                         break;
                 }
             }
-        } catch (Exception e) {
+        } catch (IOException e) {
             httpExchange.sendResponseHeaders(405, 0);
+            throw new ManagerSaveException("Ошибка отправки ответа на запрос в " + HttpTaskServer.class + ".getHandle");
         }
         finally {
             httpExchange.close();
         }
     }
 
-    private String getHandleTask(String method, String path, String body) throws IOException, InterruptedException {
+    private String getHandleTask(String method, String path, String body) {
         String response = "";
-        int id = -1;
+        int id = WRONG_ID;
         if (path != null)
         {
             String idPath = path.replaceFirst("id=", "");
@@ -123,14 +121,14 @@ public class HttpTaskServer {
             }
         }
         switch (method) {
-            case "GET":
-                if (id != -1) {
+            case GET_METHOD:
+                if (id != WRONG_ID) {
                     response = gson.toJson(taskManager.getTaskById(id));
                 } else {
                     response =  gson.toJson(taskManager.getAllTasks());
                 }
                 break;
-            case "POST":
+            case POST_METHOD:
                 Task task = gson.fromJson(body, Task.class);
                 if (task.getId() == null) {
                     response = gson.toJson(taskManager.addTask(task));
@@ -138,8 +136,8 @@ public class HttpTaskServer {
                     taskManager.updateTask(task);
                 }
                 break;
-            case "DELETE":
-                if (id != -1) {
+            case DELETE_METHOD:
+                if (id != WRONG_ID) {
                     taskManager.deleteTaskById(id);
                 } else {
                     taskManager.deleteAllTasks();
@@ -149,9 +147,9 @@ public class HttpTaskServer {
         return response;
     }
 
-    private String getHandleEpic(String method, String path, String body) throws IOException, InterruptedException {
+    private String getHandleEpic(String method, String path, String body) {
         String response = "";
-        int id = -1;
+        int id = WRONG_ID;
         if (path != null) {
             String idPath = path.replaceFirst("id=", "");
             if (!idPath.isEmpty()) {
@@ -159,14 +157,14 @@ public class HttpTaskServer {
             }
         }
         switch (method) {
-            case "GET":
-                if (id != -1) {
+            case GET_METHOD:
+                if (id != WRONG_ID) {
                     response = gson.toJson(taskManager.getEpicById(id));
                 } else {
                     response = gson.toJson(taskManager.getAllEpics());
                 }
                 break;
-            case "POST":
+            case POST_METHOD:
                 Epic epic = gson.fromJson(body, Epic.class);
                 if (epic.getId() == null) {
                     response = gson.toJson(taskManager.addEpic(epic));
@@ -174,8 +172,8 @@ public class HttpTaskServer {
                     taskManager.updateEpic(epic);
                 }
                 break;
-            case "DELETE":
-                if (id != -1) {
+            case DELETE_METHOD:
+                if (id != WRONG_ID) {
                     taskManager.deleteEpicById(id);
                 } else {
                     taskManager.deleteAllEpics();
@@ -185,9 +183,9 @@ public class HttpTaskServer {
         return response;
     }
 
-    private String getHandleSubtask(String method, String path, String body) throws IOException, InterruptedException {
+    private String getHandleSubtask(String method, String path, String body) {
         String response = "";
-        int id = -1;
+        int id = WRONG_ID;
         if (path != null) {
             String idPath = path.replaceFirst("id=", "");
             if (!idPath.isEmpty()) {
@@ -195,14 +193,14 @@ public class HttpTaskServer {
             }
         }
         switch (method) {
-            case "GET":
-                if (id != -1) {
+            case GET_METHOD:
+                if (id != WRONG_ID) {
                     response = gson.toJson(taskManager.getSubTaskById(id));
                 } else {
                     response = gson.toJson(taskManager.getAllSubtasks());
                 }
                 break;
-            case "POST":
+            case POST_METHOD:
                 Subtask subtask = gson.fromJson(body, Subtask.class);
                 if (subtask.getId() == null) {
                     response = gson.toJson(taskManager.addSubtask(subtask));
@@ -210,8 +208,8 @@ public class HttpTaskServer {
                     taskManager.updateSubtask(subtask);
                 }
                 break;
-            case "DELETE":
-                if (id != -1) {
+            case DELETE_METHOD:
+                if (id != WRONG_ID) {
                     taskManager.deleteSubtaskById(id);
                 } else {
                     taskManager.deleteAllSubTasks();
@@ -225,7 +223,7 @@ public class HttpTaskServer {
         try {
             return Integer.parseInt(pathId);
         } catch (NumberFormatException e) {
-         return -1;
+            return WRONG_ID;
         }
     }
 }

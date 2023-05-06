@@ -20,6 +20,17 @@ public class FileBackedTasksManager extends InMemoryTaskManager {
         super();
     }
     private static final String FILE_NAME = "src\\storage.csv";
+    private final static int FIRST_LINE_WITH_VALUE = 1;
+    private final static int TASK_QUANTITY_ELEMENTS = 8;
+    private final static int ID = 0;
+    private final static int TYPE = 1;
+    private final static int NAME = 2;
+    private final static int STATUS = 3;
+    private final static int DESCRIPTION = 4;
+    private final static int START_TIME = 5;
+    private final static int DURATION = 6;
+    private final static int END_TIME = 7;
+    private final static int EPIC_ID = 8;
 
     @Override
     public boolean checkUncrossingTasks(Task newTask) {
@@ -57,89 +68,89 @@ public class FileBackedTasksManager extends InMemoryTaskManager {
     }
 
     @Override
-    public void deleteAllEpics() throws IOException, InterruptedException {
+    public void deleteAllEpics() {
         super.deleteAllEpics();
     }
 
     @Override
-    public void deleteAllSubTasks() throws IOException, InterruptedException {
+    public void deleteAllSubTasks() {
         super.deleteAllSubTasks();
     }
 
     @Override
-    public Task getTaskById(Integer id) throws IOException, InterruptedException {
+    public Task getTaskById(Integer id) {
         Task task = super.getTaskById(id);
         save();
         return task;
     }
 
     @Override
-    public Epic getEpicById(Integer id) throws IOException, InterruptedException {
+    public Epic getEpicById(Integer id) {
         Epic epic = super.getEpicById(id);
         save();
         return epic;
     }
 
     @Override
-    public Subtask getSubTaskById(Integer id) throws IOException, InterruptedException {
+    public Subtask getSubTaskById(Integer id) {
         Subtask subtask = super.getSubTaskById(id);
         save();
         return subtask;
     }
 
     @Override
-    public Integer addTask(Task task) throws IOException, InterruptedException {
+    public Integer addTask(Task task) {
         Integer id = super.addTask(task);
         save();
         return id;
     }
 
     @Override
-    public Integer addEpic(Epic epic) throws IOException, InterruptedException {
+    public Integer addEpic(Epic epic) {
         Integer id = super.addEpic(epic);
         save();
         return id;
     }
 
     @Override
-    public Integer addSubtask(Subtask subtask) throws IOException, InterruptedException {
+    public Integer addSubtask(Subtask subtask) {
         Integer id = super.addSubtask(subtask);
         save();
         return id;
     }
 
     @Override
-    public void deleteTaskById(Integer id) throws IOException, InterruptedException {
+    public void deleteTaskById(Integer id) {
         super.deleteTaskById(id);
         save();
     }
 
     @Override
-    public void deleteEpicById(Integer id) throws IOException, InterruptedException {
+    public void deleteEpicById(Integer id) {
         super.deleteEpicById(id);
         save();
     }
 
     @Override
-    public void deleteSubtaskById(Integer id) throws IOException, InterruptedException {
+    public void deleteSubtaskById(Integer id) {
         super.deleteSubtaskById(id);
         save();
     }
 
     @Override
-    public void updateTask(Task task) throws IOException, InterruptedException {
+    public void updateTask(Task task) {
         super.updateTask(task);
         save();
     }
 
     @Override
-    public void updateSubtask(Subtask subtask) throws IOException, InterruptedException {
+    public void updateSubtask(Subtask subtask) {
         super.updateSubtask(subtask);
         save();
     }
 
     @Override
-    public void updateEpic(Epic epic) throws IOException, InterruptedException {
+    public void updateEpic(Epic epic) {
         super.updateEpic(epic);
         save();
     }
@@ -195,7 +206,7 @@ public class FileBackedTasksManager extends InMemoryTaskManager {
     }
 
     private static void restoreTasks(FileBackedTasksManager fileBackedTasksManager, String[] lines) {
-        for (int i = 1; i < lines.length; i++) {
+        for (int i = FIRST_LINE_WITH_VALUE; i < lines.length; i++) {
             if (!lines[i].isEmpty()) {
                 Task task = fileBackedTasksManager.fromString(lines[i]);
                 if (task.getType().equals(Type.TASK)) {
@@ -233,20 +244,20 @@ public class FileBackedTasksManager extends InMemoryTaskManager {
         Duration duration = null;
         LocalDateTime endTime = null;
         String[] taskElement = taskText.split(",");
-        if (taskElement.length >= 8) {
-            Integer id = Integer.parseInt(taskElement[0]);
-            String name = taskElement[2];
-            String description = taskElement[4];
-            Type type = Type.valueOf(taskElement[1]);
-            Status status = Status.valueOf(taskElement[3]);
-            if (!taskElement[5].equals("null")) {
-                startTime = LocalDateTime.parse(taskElement[5]);
+        if (taskElement.length >= TASK_QUANTITY_ELEMENTS) {
+            Integer id = Integer.parseInt(taskElement[ID]);
+            String name = taskElement[NAME];
+            String description = taskElement[DESCRIPTION];
+            Type type = Type.valueOf(taskElement[TYPE]);
+            Status status = Status.valueOf(taskElement[STATUS]);
+            if (!taskElement[START_TIME].equals("null")) {
+                startTime = LocalDateTime.parse(taskElement[START_TIME]);
             }
-            if (!taskElement[6].equals("null")) {
-                duration = Duration.parse(taskElement[6]);
+            if (!taskElement[DURATION].equals("null")) {
+                duration = Duration.parse(taskElement[DURATION]);
             }
-            if (!taskElement[7].equals("null")) {
-                endTime = LocalDateTime.parse(taskElement[7]);
+            if (!taskElement[END_TIME].equals("null")) {
+                endTime = LocalDateTime.parse(taskElement[END_TIME]);
             }
             switch (type) {
                 case TASK:
@@ -256,7 +267,7 @@ public class FileBackedTasksManager extends InMemoryTaskManager {
                     task = new Epic(id, type, name, status, description, startTime, duration, endTime);
                     break;
                 case SUBTASK:
-                    Integer epicId = Integer.parseInt(taskElement[8]);
+                    Integer epicId = Integer.parseInt(taskElement[EPIC_ID]);
                     task = new Subtask(id, type, name, status, description, startTime, duration, endTime, epicId);
                     break;
                 default:

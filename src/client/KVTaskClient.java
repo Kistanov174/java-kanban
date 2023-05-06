@@ -1,5 +1,7 @@
 package client;
 
+import exception.ManagerSaveException;
+
 import java.io.IOException;
 import java.net.URI;
 import java.net.http.HttpClient;
@@ -7,7 +9,7 @@ import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 
 public class KVTaskClient {
-    private String apiToken;
+    private final String apiToken;
     public KVTaskClient(URI uri)  {
         try {
             HttpRequest request = HttpRequest.newBuilder()
@@ -19,7 +21,7 @@ public class KVTaskClient {
             HttpResponse<String> response = client.send(request, handler);
             apiToken = response.body();
         } catch(IOException | InterruptedException e) {
-            e.printStackTrace();
+            throw new ManagerSaveException("Сбой регистрации в конструкторе " + KVTaskClient.class.getName());
         }
     }
 
@@ -35,7 +37,7 @@ public class KVTaskClient {
             HttpResponse.BodyHandler<String> handler = HttpResponse.BodyHandlers.ofString();
             client.send(request, handler);
         } catch (IOException | InterruptedException e) {
-            e.printStackTrace();
+            throw new ManagerSaveException("Ошибка сохранения на сервер " + KVTaskClient.class.getName() + ".put()");
         }
     }
 
@@ -51,8 +53,7 @@ public class KVTaskClient {
             HttpResponse<String> response = client.send(request, handler);
             return response.body();
         } catch (IOException | InterruptedException e) {
-            e.printStackTrace();
-            return "";
+            throw new ManagerSaveException("Ошибка загрузки с сервера " + KVTaskClient.class.getName() + ".load()");
         }
     }
 }

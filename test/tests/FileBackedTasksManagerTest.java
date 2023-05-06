@@ -9,7 +9,6 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import service.FileBackedTasksManager;
 import java.io.File;
-import java.io.IOException;
 import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.List;
@@ -41,7 +40,7 @@ public class FileBackedTasksManagerTest extends TaskManagerTest<FileBackedTasksM
 
     @DisplayName("Чтение файла с пустой историей просмотра")
     @Test
-    void shouldGetTaskManagerWithEmptyBrowsingHistory() throws IOException, InterruptedException {
+    void shouldGetTaskManagerWithEmptyBrowsingHistory() {
         taskManager = new FileBackedTasksManager();
         Task task = new Task("Test addNewTask", "Test addNewTask description",
                 LocalDateTime.of(2023,4,7,12,35),
@@ -55,7 +54,7 @@ public class FileBackedTasksManagerTest extends TaskManagerTest<FileBackedTasksM
 
     @DisplayName("Запись и чтение эпика без подзадач")
     @Test
-    void shouldGetFileAndTaskManagerWithEmptyEpic() throws IOException, InterruptedException {
+    void shouldGetFileAndTaskManagerWithEmptyEpic() {
         Epic epic = new Epic("The single epic", "This epic has zero subtask",null, null);
         taskManager = new FileBackedTasksManager();
         taskManager.addEpic(epic);
@@ -66,7 +65,7 @@ public class FileBackedTasksManagerTest extends TaskManagerTest<FileBackedTasksM
 
     @DisplayName("Запись и чтение задачи")
     @Test
-    void shouldGetFileAndTaskManagerWithTask() throws IOException, InterruptedException {
+    void shouldGetFileAndTaskManagerWithTask() {
         Task task = new Task("Test addNewTask", "Test addNewTask description",
         LocalDateTime.of(2023,4,7,12,35), Duration.ofMinutes(120));
         taskManager = new FileBackedTasksManager();
@@ -78,7 +77,7 @@ public class FileBackedTasksManagerTest extends TaskManagerTest<FileBackedTasksM
 
     @DisplayName("Запись и чтение эпика с подзадачами")
     @Test
-    void shouldGetFileAndTaskManagerWithNotEmptyEpic() throws IOException, InterruptedException {
+    void shouldGetFileAndTaskManagerWithNotEmptyEpic() {
         taskManager = new FileBackedTasksManager();
         Epic epic = new Epic("The single epic", "This epic has zero subtask",null, null);
         taskManager.addEpic(epic);
@@ -94,7 +93,7 @@ public class FileBackedTasksManagerTest extends TaskManagerTest<FileBackedTasksM
 
     @DisplayName("Запись и чтение истории просмотра")
     @Test
-    void shouldGetFileAndTaskManagerWithNotEmptyBrowsingHistory() throws IOException, InterruptedException {
+    void shouldGetFileAndTaskManagerWithNotEmptyBrowsingHistory() {
         taskManager = new FileBackedTasksManager();
         Epic epic = new Epic("The single epic", "This epic has zero subtask",null, null);
         taskManager.addEpic(epic);
@@ -113,7 +112,7 @@ public class FileBackedTasksManagerTest extends TaskManagerTest<FileBackedTasksM
     }
 
     @BeforeEach
-    void beforeAll() throws IOException, InterruptedException {
+    void beforeAll() {
         taskManager = new FileBackedTasksManager();
         historyManager = taskManager.getHistoryManager();
         FileBackedTasksManager.loadFromFile(FILE);
